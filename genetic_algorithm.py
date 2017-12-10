@@ -28,7 +28,7 @@ idxList = ([0] * 15 + [1] * 14 + [2] * 13 + [3] * 12 + [4] * 11 +
 			[10] * 5 + [11] * 4 + [12] * 3 + [13] * 2 + [14] * 1)
 
 def DNA_crossover(f, m):
-	numSplices = random.randint(15, 35)
+	numSplices = random.randint(minSplices, maxSplices)
 	spliceLocs = []
 	DNA = ''
 	for i in range(numSplices):
@@ -140,6 +140,9 @@ poolSize = 30
 plebPoolSize = 3
 plebPoolChance = 0.1
 
+minSplices = 15
+maxSplices = 35
+
 mutationRate = 0.01
 
 #**********STUFF TO MOVE TO THE TOP*****************
@@ -184,10 +187,7 @@ def breed_2a(ctype):
 			offspring.append(DNA2)
 
 	random.shuffle(offspring)
-	if ctype == "tiger":
-		tOffspring = offspring
-	else:
-		dOffspring = offspring
+	return offspring
 
 def mutate_2a(DNA, ctype):
 	DNA = list(DNA)
