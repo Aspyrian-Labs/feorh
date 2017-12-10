@@ -216,7 +216,7 @@ class Creature(pygame.sprite.Sprite):
                 wallDeaths.append(0) #see diagnostics, feorh.py
 
                 #If it was good enough to breed, record it for diagnostics
-                ga.pool(fitness, self.DNA, self.ctype, self.id)
+                ga.pool_2a(fitness, self.DNA, self.ctype, self.id)
                 for t in ga.tGenepool:
                     if self.id in t:
                         newBreeders.append([self.id, fitness, self.DNA])
@@ -226,7 +226,7 @@ class Creature(pygame.sprite.Sprite):
         if self.ctype == 'deer':
             if not deathByWall:
                 fitness = self.calc_fitness()
-                ga.pool(fitness, self.DNA, self.ctype, self.id)
+                ga.pool_2a(fitness, self.DNA, self.ctype, self.id)
             deerList.remove(self)
 
     def calc_fitness(self):

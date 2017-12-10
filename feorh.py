@@ -20,7 +20,11 @@ class Feorh():
     """
     Feorh - Class describing a simple hunting game, played by AI.
     """
-    epoch = 1
+    epoch = 1 #see diagnostics
+    tnumSpawned = 0 #number of creatures spawned each epoch
+    dnumSpawned = 0 #number of creatures spawned each epoch
+    genNo = 0 #generation counter
+    firstGen = True
     width = const.WIDTH
     height = const.HEIGHT
     tileSize = const.TILESIZE
@@ -94,17 +98,16 @@ class Feorh():
         c.deerList.update()
         c.tigerList.update()
 
+        #************ END OF STEP: visualisation and diagnostics
+        self.diagnostics()
+        self.generation_tracker() #check if it time to breed next generation
         #Check if there are enough tigers and deer - if not, create children
         self.populate('tiger', const.TIGERPOP, len(c.tigerList), 
                       len(ga.tGenepool), len(ga.tPregnancies))
         self.populate('deer', const.DEERPOP, len(c.deerList), 
                       len(ga.dGenepool), len(ga.dPregnancies))
-
-        #************ END OF STEP: visualisation and diagnostics
         update_display(self.display, self.cList, [c.deerList, c.tigerList], 
                        self.bgSurface)
-
-        self.diagnostics()
         return
 
     def run_pause_logic(self):
@@ -163,17 +166,20 @@ class Feorh():
         Check if there are enough tigers and deers. If not, create children.
         """
         #Do we need to spawn a creature?
-        if cListSize < popSize: 
-            if poolSize < const.GENE_POOL_SIZE:
+        if cListSize < popSize:
+            if firstGen:
                 #If genepool is small, spawn creature with randomised DNA
                 c.spawn_creature(ctype, mapHeight=self.height, mapWidth=self.width, 
                                  tileSize=self.tileSize)
             else:
-                #If not, make sure DNA is ready (a 'pregnancy')
-                if pregListSize == 0:
-                    #Make DNA through breeding creatures in genepool
-                    ga.breed(ctype)
-                DNA = ga.get_DNA(ctype)
+                #Otherwise spawn the next creature in the pregancies list
+                if ctype == 'tiger'
+                    #if all creatures have been spawned, wrap around to start of list
+                    DNA = ga.get_DNA(ctype, tnumSpawned%len(ga.tPregnancies))
+                    tnumSpawned += 1  
+                else:
+                    DNA = ga.get_DNA(ctype, dnumSpawned%len(ga.dPregnancies))
+                    dnumSpawned += 1
                 c.spawn_creature(ctype, mapHeight=self.height, mapWidth=self.width, 
                                  tileSize=self.tileSize, DNA=DNA)
         return
@@ -323,6 +329,26 @@ class Feorh():
                 self.epoch += 1
                 c.epoch = self.epoch
                 print ' *                            Epoch:', self.epoch    
+        return
+
+    def generation_tracker(self):
+        if firstGen and ga.tGenepool >= const.GENE_POOL_SIZE and ga.tGenepool >= const.GENE_POOL_SIZE:
+            #If still in 0th gen, but the genepools are full - start breeding
+            firstGen = False
+
+        if not firstGen:
+            if tnumSpawned >= len(c.tPrenancies) and dnumSpawned >= len(c.dPregnancies):
+                #END OF GENERATION
+                #Create all possible offspring DNA from current gene pools
+                tOffspring = ga.breed("tiger")
+                dOffspring = ga.breed("deer")
+                #Replace pregnancies lists with new offspring
+                ga.tPregnancies = tOffspring
+                ga.dPregnancies = dOffspring
+                #Reset gene pools
+                ga.end_gen()
+                print "************** END OF GENERATION %d" % genNo
+                genNo += 1
         return
 
 def start_display(title, w = const.WIDTH, h = const.HEIGHT, 
