@@ -151,9 +151,6 @@ def pool(fitness, DNA, ctype, idNum):
 	pool = tGenepool if ctype == "tiger" else dGenepool
 	plebPool = tPlebPool if ctype == "tiger" else dPlebPool
 
-	print "tGenepool length before = %d" % len(tGenepool)
-	print "dGenepool length before = %d" % len(dGenepool)
-
 	if len(pool) < poolSize: 
 		#pool isn't full
 		pool.append([fitness, DNA, idNum])
@@ -168,9 +165,6 @@ def pool(fitness, DNA, ctype, idNum):
 		plebPool.append([fitness, DNA, idNum])
 		random.shuffle(plebPool)
 		del plebPool[plebPoolSize:]
-
-	print "tGenepool length after = %d" % len(tGenepool)
-	print "dGenepool length after = %d" % len(dGenepool)
 
 def breed(ctype):
 	#NEW BREED FUNCTION
@@ -214,10 +208,8 @@ def get_DNA(ctype, i):
 	DNA = ''
 	if ctype == "tiger":
 		DNA = tPregnancies[i]
-		del tPregnancies[i]
 	elif ctype == "deer":
 		DNA = dPregnancies[i]
-		del dPregnancies[i]
 	return DNA
 
 def end_gen():

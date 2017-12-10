@@ -19,7 +19,7 @@ import constants as const
 tigerList = pygame.sprite.Group()
 deerList = pygame.sprite.Group()
 
-deerSpeed = 0
+deerSpeed = 5
 fitnesses = []
 wallDeaths = []
 newBreeders = []
