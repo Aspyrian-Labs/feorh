@@ -332,8 +332,9 @@ class Feorh():
         return
 
     def generation_tracker(self):
-        if self.firstGen and ga.tGenepool >= const.GENE_POOL_SIZE and ga.tGenepool >= const.GENE_POOL_SIZE:
+        if self.firstGen and len(ga.tGenepool) >= const.GENE_POOL_SIZE and len(ga.dGenepool) >= const.GENE_POOL_SIZE:
             #If still in 0th gen, but the genepools are full - start breeding
+            print "END OF FIRST GENERATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             self.firstGen = False
 
         if not self.firstGen:
@@ -342,17 +343,18 @@ class Feorh():
                 #Create all possible offspring DNA from current gene pools
                 tOffspring = ga.breed("tiger")
                 dOffspring = ga.breed("deer")
+                print len(tOffspring), len(dOffspring)
                 #Replace pregnancies lists with new offspring
                 ga.tPregnancies = tOffspring
                 ga.dPregnancies = dOffspring
+                print len(ga.tPregnancies), len(ga.dPregnancies)
                 #Reset gene pools
                 ga.end_gen()
                 print "************** END OF GENERATION %d" % self.genNo
                 self.genNo += 1
         return
 
-def start_display(title, w = const.WIDTH, h = const.HEIGHT, 
-                  tileSize = const.TILESIZE):
+def start_display(title, w = const.WIDTH, h = const.HEIGHT, tileSize = const.TILESIZE):
     """
     Initialise pygame, open and title a window.
     """
