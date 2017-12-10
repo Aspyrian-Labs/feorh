@@ -140,6 +140,8 @@ poolSize = 30
 plebPoolSize = 3
 plebPoolChance = 0.1
 
+mutationRate = 0.01
+
 #**********STUFF TO MOVE TO THE TOP*****************
 tpool = []
 dpool = []
@@ -164,5 +166,42 @@ def pool_2a(fitness, DNA, ctype, idNum):
 		random.shuffle(plebPool)
 		del plebPool[plebPoolSize:]
 
+def breed_2a(ctype):
+	#produces every combination of children from all parents
+	#their DNA will go into a list which will be drawn from for the next generation
+	pool = tpool if ctype == "tiger" else dpool
+	plebPool = tPlebPool if ctype == "tiger" else dPlebPool
+	breeders = pool + plebPool
+	offspring = []
+
+	for i, parent1 in enumerate(breeders):
+		for j, parent2 in enumerate(breeders):
+			if i == j continue
+			DNA1, DNA2 = DNA_crossover(breeders[i][1], breeders[j][1])
+			DNA1 = mutate_2a(DNA1, ctype)
+			DNA2 = mutate_2a(DNA2, ctype)
+			offspring.append(DNA1)
+			offspring.append(DNA2)
+
+	random.shuffle(offspring)
+	if ctype == "tiger":
+		tOffspring = offspring
+	else:
+		dOffspring = offspring
+
+def mutate_2a(DNA, ctype):
+	DNA = list(DNA)
+	maxMutations = mutationRate*len(DNA)
+	nMutations = random.randint(0, maxMutations)
+
+	for i in range(nMutations):
+		mutation = random.randint(0, len(DNA)-1)
+		if DNA[mutation] == '0':
+			DNA[mutation] = '1'
+		else:
+			DNA[mutation] = '0'
+
+	DNA = ''.join(DNA)
+	return DNA
 
 
