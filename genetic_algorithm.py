@@ -155,12 +155,12 @@ def pool(fitness, DNA, ctype, idNum):
 		#pool isn't full
 		pool.append([fitness, DNA, idNum])
 		pool.sort(key=lambda x: x[0], reverse=True)
-	else if fitness > pool[poolSize-1][0]: 
+	elif fitness > pool[poolSize-1][0]: 
 		#pool is full, fitter than worst pool member
 		pool.append([fitness, DNA, idNum])
 		pool.sort(key=lambda x: x[0], reverse=True)
 		del pool[poolSize:]
-	else if random.random() <= plebPoolChance: 
+	elif random.random() <= plebPoolChance: 
 		#small chance to get in to pleb pool
 		plebPool.append([fitness, DNA, idNum])
 		random.shuffle(plebPool)
@@ -177,7 +177,8 @@ def breed(ctype):
 
 	for i, parent1 in enumerate(breeders):
 		for j, parent2 in enumerate(breeders):
-			if i == j continue
+			if i == j:
+				continue
 			DNA1, DNA2 = DNA_crossover(breeders[i][1], breeders[j][1])
 			DNA1 = mutate(DNA1, ctype)
 			DNA2 = mutate(DNA2, ctype)

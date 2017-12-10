@@ -167,19 +167,19 @@ class Feorh():
         """
         #Do we need to spawn a creature?
         if cListSize < popSize:
-            if firstGen:
+            if self.firstGen:
                 #If genepool is small, spawn creature with randomised DNA
                 c.spawn_creature(ctype, mapHeight=self.height, mapWidth=self.width, 
                                  tileSize=self.tileSize)
             else:
                 #Otherwise spawn the next creature in the pregancies list
-                if ctype == 'tiger'
+                if ctype == 'tiger':
                     #if all creatures have been spawned, wrap around to start of list
-                    DNA = ga.get_DNA(ctype, tnumSpawned%len(ga.tPregnancies))
-                    tnumSpawned += 1  
+                    DNA = ga.get_DNA(ctype, self.tnumSpawned%len(ga.tPregnancies))
+                    self.tnumSpawned += 1  
                 else:
-                    DNA = ga.get_DNA(ctype, dnumSpawned%len(ga.dPregnancies))
-                    dnumSpawned += 1
+                    DNA = ga.get_DNA(ctype, self.dnumSpawned%len(ga.dPregnancies))
+                    self.dnumSpawned += 1
                 c.spawn_creature(ctype, mapHeight=self.height, mapWidth=self.width, 
                                  tileSize=self.tileSize, DNA=DNA)
         return
@@ -332,12 +332,12 @@ class Feorh():
         return
 
     def generation_tracker(self):
-        if firstGen and ga.tGenepool >= const.GENE_POOL_SIZE and ga.tGenepool >= const.GENE_POOL_SIZE:
+        if self.firstGen and ga.tGenepool >= const.GENE_POOL_SIZE and ga.tGenepool >= const.GENE_POOL_SIZE:
             #If still in 0th gen, but the genepools are full - start breeding
-            firstGen = False
+            self.firstGen = False
 
-        if not firstGen:
-            if tnumSpawned >= len(c.tPrenancies) and dnumSpawned >= len(c.dPregnancies):
+        if not self.firstGen:
+            if self.tnumSpawned >= len(ga.tPregnancies) and self.dnumSpawned >= len(ga.dPregnancies):
                 #END OF GENERATION
                 #Create all possible offspring DNA from current gene pools
                 tOffspring = ga.breed("tiger")
@@ -347,8 +347,8 @@ class Feorh():
                 ga.dPregnancies = dOffspring
                 #Reset gene pools
                 ga.end_gen()
-                print "************** END OF GENERATION %d" % genNo
-                genNo += 1
+                print "************** END OF GENERATION %d" % self.genNo
+                self.genNo += 1
         return
 
 def start_display(title, w = const.WIDTH, h = const.HEIGHT, 

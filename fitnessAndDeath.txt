@@ -1,0 +1,1 @@
+time,epoch,live average fitness,average fitness of breeders,%wall deaths,killTotal
