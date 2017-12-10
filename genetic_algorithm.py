@@ -134,3 +134,35 @@ def pool(fitness, DNA, ctype, idNum):
 			tGenepool.append([fitness, DNA, idNum])
 			tGenepool.sort(key=lambda x: x[0], reverse=True)
 			del tGenepool[15:]
+
+#**********STUFF TO MOVE TO CONSTANTS*****************
+poolSize = 30
+plebPoolSize = 3
+plebPoolChance = 0.1
+
+#**********STUFF TO MOVE TO THE TOP*****************
+tpool = []
+dpool = []
+tPlebPool = [] #pools for less fit individuals, included in breeding process for diversity
+dPlebPool = []
+def pool_2a(fitness, DNA, ctype, idNum):
+	pool = tpool if ctype == "tiger" else dpool
+	plebPool = tPlebPool if ctype == "tiger" else dPlebPool
+
+	if len(pool) < poolSize: 
+		#pool isn't full
+		pool.append([fitness, DNA, idNum])
+		pool.sort(key=lambda x: x[0], reverse=True)
+	else if fitness > pool[poolSize-1][0]: 
+		#pool is full, fitter than worst pool member
+		pool.append([fitness, DNA, idNum])
+		pool.sort(key=lambda x: x[0], reverse=True)
+		del pool[poolSize:]
+	else if random.random() <= plebPoolChance: 
+		#small chance to get in to pleb pool
+		plebPool.append([fitness, DNA, idNum])
+		random.shuffle(plebPool)
+		del plebPool[plebPoolSize:]
+
+
+
