@@ -1,4 +1,4 @@
-# huntsim
+# feorh
 A simple simulation of animals hunting written in pygame.
 
 Top-down 2D tile based map with animals represented by coloured squares. 
