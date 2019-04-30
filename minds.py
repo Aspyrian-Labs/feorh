@@ -91,17 +91,20 @@ def get_weights(firstGeneration=False, DNA=''):
 		weights.append(l)
 		return weights, DNAbin
 
-def think(weights, vision):
+def think(weights, vision, x, y, angle):
+        #Use height, width and tilesize to let the creature know how far it is from the centre
+        height, width = const.HEIGHT*const.TILESIZE, const.WIDTH*const.TILESIZE
+        x, y = abs(width/2-x)/float(width/2), abs(height/2-y)/float(height/2)
+
 	#Use the creatures Keras model and vision to determine direction/speed
-	impulse = np.float32(2*random.random() - 1)
+	impulse = np.float32(random.uniform(-1, 1))
 	tempList = []
 	tempList.append(impulse)
-	# vision = np.array([tempList])
 	vision.append(impulse)
-	# print vision
+        vision.append(angle)
+        vision.append(x)
+        vision.append(y)
 	vision2 = np.array([vision]) #Flatten array
-	# print vision2
-	# print "\n\n"
 	model.set_weights(weights)
 	actions = model.predict(vision2)
 	return actions

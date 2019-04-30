@@ -27,10 +27,10 @@ MAXSEEDS = 50
 GENE_POOL_SIZE = 15
 
 #Neural network constants
-INPUT_COUNT = 6
-NEURONS_PER_LAYER = 15
+INPUT_COUNT = 15
+NEURONS_PER_LAYER = 4
 NUM_HIDDEN_LAYERS = 1
-OUTPUT_NEURONS = 4
+OUTPUT_NEURONS = 2
 
 #Creature constants
 TIGER_EAT_ENERGY = 50
@@ -46,12 +46,12 @@ GREEN = (76, 173, 80)
 WHITE = (255, 255, 255)
 
 #Constants for tiles
-WALL = float32(1.25)
+WALL = float32(10.25)
 DIRT = float32(0.375)
 GRASS = float32(0.5)
 WOOD = float32(0.625)
 TIGERCOLOUR = float32(0.875)
-DEERCOLOUR = float32(0.125)
+DEERCOLOUR = float32(-10.25)
 
 #Colour to tile conversion
 colours = {

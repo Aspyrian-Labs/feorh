@@ -8,8 +8,9 @@ Description:
 
 import pygame
 from pygame.locals import *
-from random import randint, choice
+from random import randint, choice, uniform
 import minds as m
+import math
 from time import time
 import genetic_algorithm as ga
 from sys import getrefcount
@@ -19,7 +20,7 @@ import constants as const
 tigerList = pygame.sprite.Group()
 deerList = pygame.sprite.Group()
 
-deerSpeed = 0
+deerSpeed = 2
 fitnesses = []
 wallDeaths = []
 newBreeders = []
@@ -28,6 +29,7 @@ idNumber = 0
 wall = const.WALL
 deerColour = const.DEERCOLOUR
 tigerColour = const.TIGERCOLOUR
+turnSpeed = 0.2
 
 def load_png(name):
     image = pygame.image.load(name)
@@ -50,7 +52,7 @@ class Creature(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.ctype = ctype
         self.name = self.get_name()
-
+        self.angle  = uniform(0, 2*math.pi)
         #Handle creature type senstive parameters
         if ctype == 'tiger':
             self.image, self.rect = load_png('tiger.png')
@@ -108,7 +110,7 @@ class Creature(pygame.sprite.Sprite):
                 self.die()
 
         #Feed vision into neural network and retrieve button presses
-        actions = m.think(self.weights, self.vision)
+        actions = m.think(self.weights, self.vision, self.rect.x, self.rect.y, self.angle)
 
         for action in actions: 
             #Speed up: action[0] = K_SPACE
@@ -117,30 +119,31 @@ class Creature(pygame.sprite.Sprite):
             # else:
             #     self.speed = self.baseSpeed
 
-            left, right, up, down, speed = False, False, False, False, False
+            left, right, stop = False, False, False
             self.dx, self.dy = 0, 0 #Reset speed
 
             #Establish 'buttons pressed': 
             if int(round(action[0])) == 1:
-                up = True
-            if int(round(action[1])) == 1:
                 left = True
-            if int(round(action[2])) == 1:
-                down = True
-            if int(round(action[3])) == 1:
+            else:
                 right = True
+            if int(round(action[1])) == 1:
+                stop = True
 
-            if up and not down:
-                self.dy = 1
-            if down and not up:
-                self.dy = -1
             if left and not right:
-                self.dx = -1
+                tempTurnRate = -turnSpeed
             if right and not left:
-                self.dx = 1
-
-        self.rect.x += self.dx * self.speed
-        self.rect.y += self.dy * self.speed
+                tempTurnRate = turnSpeed
+            if stop:
+                tempSpeed = 0
+            else:
+                tempSpeed = self.speed
+        
+        self.angle += tempTurnRate
+        direction = (math.cos(self.angle), math.sin(self.angle))
+        displacement = tuple(coord * tempSpeed for coord in direction)
+        self.rect.x += displacement[0]
+        self.rect.y += displacement[1]
         
         pygame.event.pump()
 
@@ -188,8 +191,49 @@ class Creature(pygame.sprite.Sprite):
 
         self.vision = visionTemp
         return
+    
+    def find_tile_at_angle(self, i, j, tilemap, height, width, sight_angle):
+        """
+        Iterate through a range of distance in moderate steps in dir calculated from angle...
+        If a tiger or wall is found, return it. If not, keep going until the end and return
+        the tile found there.
+        """
+        numSteps = 6
+        stepSize = 5
+        direction = (math.cos(sight_angle), math.sin(sight_angle))
+        x, y = self.rect.x, self.rect.y
+        for step in range(numSteps):
+            displacement = tuple(coord * stepSize for coord in direction)
+            x += displacement[0]
+            y += displacement[1]
+            tileX, tileY = int(x/const.TILESIZE), int(y/const.TILESIZE)
+            try:
+                tile = tilemap[tileY][tileX]
+            except IndexError:
+                return wall
+            if tile == tigerColour and self.ctype == 'deer':
+                return tile
+            elif tile == deerColour and self.ctype == 'deer':
+                return tile
+            elif tile == wall:
+                return tile
+        return tile
 
-    def print_vision():
+    def get_directional_vision(self, i, j, tilemap, height, width, centreTile):
+        """
+        Uses the creatures current direction to generate a set of inputs describing
+        which tiles are in their field of view.
+        """
+        visionTemp = [centreTile]
+        numInputs = 10
+        angle = self.angle * 180/math.pi
+        for i in range(numInputs):
+            sight_angle = angle - 60 + i * (60/(numInputs/2))
+            visionTemp.append(self.find_tile_at_angle(i, j, tilemap, height, width, sight_angle))
+        self.vision = visionTemp
+        return
+
+    def print_vision(self):
         print self.name.rstrip(), self.energy
         print "Vision: "
         print "     %s" % (const.tileNames[self.vision[0]])
@@ -249,7 +293,6 @@ def spawn_creature(ctype, mapHeight = 100, mapWidth = 150, tileSize = 6, pos=[-1
     if ctype == 'deer':
         while not acceptable:
             acceptable = True #Tentatively assume the spawn is suitable...
-
             #Check the spawn against tiger positions to ensure they do not spawn too closely
             for tiger in tigerList:
                 if pos[0] < (tiger.rect.centerx + 15) and pos[0] > (tiger.rect.centerx - 15):

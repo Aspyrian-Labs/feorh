@@ -86,7 +86,7 @@ class Feorh():
         #Update creatures: update & supply vision, get and enact actions
         for creature in self.cList:
             i, j = mf.find_tile(creature, self.tileSize, self.height, self.width)
-            creature.get_vision(i, j, self.tilemap, self.height, self.width, 
+            creature.get_directional_vision(i, j, self.tilemap, self.height, self.width, 
                                 self.tilemapMaster[i][j])
             #Kill any creature that walks off the map.
             if not self.displayRect.colliderect(creature.rect):
