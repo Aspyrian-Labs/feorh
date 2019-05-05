@@ -29,7 +29,7 @@ idNumber = 0
 wall = const.WALL
 deerColour = const.DEERCOLOUR
 tigerColour = const.TIGERCOLOUR
-turnSpeed = 0.2
+turnSpeed = 0.2/3
 
 def load_png(name):
     image = pygame.image.load(name)
@@ -78,6 +78,12 @@ class Creature(pygame.sprite.Sprite):
             self.age = 0.0
             self.id = get_id()
 
+        #Scale sprites
+        self.size = self.image.get_size()
+        # create a 2x bigger image than self.image
+        self.image = pygame.transform.scale(self.image, (int(self.size[0]*2), int(self.size[1]*2)))
+        self.baseImage = self.image
+
         #Set up display information
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()  
@@ -91,7 +97,7 @@ class Creature(pygame.sprite.Sprite):
 
         #Set up default vision (5x5 grid, all seeing 'off map')
         # self.vision = [[wall for column in range(5)] for row in range(5
-        self.vision = [wall,wall,wall,wall,wall]
+        self.vision = []
 
         #Create blank DNA and attach a Mind object to our creature
         self.DNA = DNA
@@ -140,10 +146,13 @@ class Creature(pygame.sprite.Sprite):
                 tempSpeed = self.speed
         
         self.angle += tempTurnRate
-        direction = (math.cos(self.angle), math.sin(self.angle))
+        #self.angle = self.angle % 2.0 * math.pi
+        direction = (math.cos(self.angle), -math.sin(self.angle))
         displacement = tuple(coord * tempSpeed for coord in direction)
         self.rect.x += displacement[0]
         self.rect.y += displacement[1]
+        angleInDeg = self.angle * 180/math.pi
+        self.image = pygame.transform.rotate(self.baseImage, angleInDeg % 360) 
         
         pygame.event.pump()
 
@@ -202,8 +211,8 @@ class Creature(pygame.sprite.Sprite):
         stepSize = 5
         direction = (math.cos(sight_angle), math.sin(sight_angle))
         x, y = self.rect.x, self.rect.y
+        displacement = tuple(coord * stepSize for coord in direction)
         for step in range(numSteps):
-            displacement = tuple(coord * stepSize for coord in direction)
             x += displacement[0]
             y += displacement[1]
             tileX, tileY = int(x/const.TILESIZE), int(y/const.TILESIZE)
@@ -213,7 +222,7 @@ class Creature(pygame.sprite.Sprite):
                 return wall
             if tile == tigerColour and self.ctype == 'deer':
                 return tile
-            elif tile == deerColour and self.ctype == 'deer':
+            elif tile == deerColour and self.ctype == 'tiger':
                 return tile
             elif tile == wall:
                 return tile
@@ -226,21 +235,25 @@ class Creature(pygame.sprite.Sprite):
         """
         visionTemp = [centreTile]
         numInputs = 10
-        angle = self.angle * 180/math.pi
+        angle = self.angle * 180/math.pi # angle in deg
         for i in range(numInputs):
             sight_angle = angle - 60 + i * (60/(numInputs/2))
-            visionTemp.append(self.find_tile_at_angle(i, j, tilemap, height, width, sight_angle))
+            visionTemp.append(self.find_tile_at_angle(i, j, tilemap, height, width, sight_angle * math.pi/180))
         self.vision = visionTemp
         return
 
     def print_vision(self):
         print self.name.rstrip(), self.energy
-        print "Vision: "
-        print "     %s" % (const.tileNames[self.vision[0]])
-        print "  %s  %s  %s" % (const.tileNames[self.vision[2]], 
-                                const.tileNames[self.vision[4]], 
-                                const.tileNames[self.vision[3]])
-        print "     %s" % (const.tileNames[self.vision[1]])
+        # print "Vision: "
+        # print "     %s" % (const.tileNames[self.vision[0]])
+        # print "  %s  %s  %s" % (const.tileNames[self.vision[2]], 
+        #                         const.tileNames[self.vision[4]], 
+        #                         const.tileNames[self.vision[3]])
+        # print "     %s" % (const.tileNames[self.vision[1]])
+        print " Angle: "
+        print " raw angle: %s, mod rad: %s" % (self.angle, self.angle % (2*math.pi))
+        print " raw deg: %s, mod deg: %s" % (self.angle * 180/math.pi, (self.angle * 180/math.pi) % 360)
+        print " dir: %s %s" % (math.cos(self.angle), math.sin(self.angle))
         return
 
 
