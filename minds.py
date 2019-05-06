@@ -101,9 +101,9 @@ def think(weights, vision, x, y, angle):
 	tempList = []
 	tempList.append(impulse)
 	vision.append(impulse)
-        vision.append(angle)
-        vision.append(x)
-        vision.append(y)
+	#vision.append(angle)
+	vision.append(x)
+	vision.append(y)
 	vision2 = np.array([vision]) #Flatten array
 	model.set_weights(weights)
 	actions = model.predict(vision2)

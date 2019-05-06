@@ -15,6 +15,7 @@ from time import time
 import genetic_algorithm as ga
 from sys import getrefcount
 import constants as const
+from mapfuncs import outOfBounds
 
 #Lists of objects
 tigerList = pygame.sprite.Group()
@@ -29,7 +30,7 @@ idNumber = 0
 wall = const.WALL
 deerColour = const.DEERCOLOUR
 tigerColour = const.TIGERCOLOUR
-turnSpeed = 0.2/3
+turnSpeed = 0.2
 
 def load_png(name):
     image = pygame.image.load(name)
@@ -118,6 +119,7 @@ class Creature(pygame.sprite.Sprite):
         #Feed vision into neural network and retrieve button presses
         actions = m.think(self.weights, self.vision, self.rect.x, self.rect.y, self.angle)
 
+        #Use output of NN (see minds.py) to determine movement 
         for action in actions: 
             #Speed up: action[0] = K_SPACE
             # if int(round(action[0])) == 1:
@@ -131,23 +133,31 @@ class Creature(pygame.sprite.Sprite):
             #Establish 'buttons pressed': 
             if int(round(action[0])) == 1:
                 left = True
-            else:
-                right = True
             if int(round(action[1])) == 1:
+                right = True
+            if int(round(action[2])) == 1:
                 stop = True
 
             if left and not right:
                 tempTurnRate = -turnSpeed
-            if right and not left:
+            elif right and not left:
                 tempTurnRate = turnSpeed
+            else:
+                tempTurnRate = 0
             if stop:
                 tempSpeed = 0
             else:
                 tempSpeed = self.speed
         
+        #Update direction and displacement 
         self.angle += tempTurnRate
-        #self.angle = self.angle % 2.0 * math.pi
-        direction = (math.cos(self.angle), -math.sin(self.angle))
+        self.angle = self.angle % (2.0 * math.pi) # angle is in radians: clamp it between 0 and 2pi
+        # if self.angle * 180/math.pi >= 360:
+        #     self.angle -= 360 / (180/math.pi)
+        # elif self.angle * 180/math.pi < 0:
+        #     self.angle -= 360 / (180/math.pi)
+
+        direction = (math.cos(self.angle), -math.sin(self.angle)) # displacement origin is top left corner
         displacement = tuple(coord * tempSpeed for coord in direction)
         self.rect.x += displacement[0]
         self.rect.y += displacement[1]
@@ -208,23 +218,25 @@ class Creature(pygame.sprite.Sprite):
         the tile found there.
         """
         numSteps = 6
-        stepSize = 5
-        direction = (math.cos(sight_angle), math.sin(sight_angle))
+        stepSize = 40 # ~tile diagonal 
+        direction = (math.cos(sight_angle), -math.sin(sight_angle))
         x, y = self.rect.x, self.rect.y
         displacement = tuple(coord * stepSize for coord in direction)
         for step in range(numSteps):
             x += displacement[0]
             y += displacement[1]
             tileX, tileY = int(x/const.TILESIZE), int(y/const.TILESIZE)
+            if outOfBounds(tileX, tileY):
+                return wall
             try:
                 tile = tilemap[tileY][tileX]
-            except IndexError:
+            except IndexError: 
                 return wall
             if tile == tigerColour and self.ctype == 'deer':
                 return tile
             elif tile == deerColour and self.ctype == 'tiger':
                 return tile
-            elif tile == wall:
+            elif tile == wall:   
                 return tile
         return tile
 
@@ -234,7 +246,7 @@ class Creature(pygame.sprite.Sprite):
         which tiles are in their field of view.
         """
         visionTemp = [centreTile]
-        numInputs = 10
+        numInputs = 7
         angle = self.angle * 180/math.pi # angle in deg
         for i in range(numInputs):
             sight_angle = angle - 60 + i * (60/(numInputs/2))
@@ -254,6 +266,16 @@ class Creature(pygame.sprite.Sprite):
         print " raw angle: %s, mod rad: %s" % (self.angle, self.angle % (2*math.pi))
         print " raw deg: %s, mod deg: %s" % (self.angle * 180/math.pi, (self.angle * 180/math.pi) % 360)
         print " dir: %s %s" % (math.cos(self.angle), math.sin(self.angle))
+        print " vision: ", self.vision
+
+        print " %s %s %s | %s | %s %s %s " % (const.tileNames[self.vision[0]],
+                                              const.tileNames[self.vision[1]],
+                                              const.tileNames[self.vision[2]],
+                                              const.tileNames[self.vision[3]],
+                                              const.tileNames[self.vision[4]],
+                                              const.tileNames[self.vision[5]],
+                                              const.tileNames[self.vision[6]],
+                                              )
         return
 
 

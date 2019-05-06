@@ -60,3 +60,12 @@ def find_tile(creature, tileSize, height, width):
 		j = width - 1
 		
 	return i, j
+
+def outOfBounds(x, y):
+	# is a displacement coordinate off the map? (in x OR y)
+	if ((x < 0 or x > const.TILESIZE*const.WIDTH) or (y < 0 or y > const.TILESIZE * const.HEIGHT)):
+		return True
+	else:
+	    return False
+
+
