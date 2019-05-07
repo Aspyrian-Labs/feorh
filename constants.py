@@ -16,6 +16,9 @@ RUN_DIAGNOSTICS = True
 #Starting framerate
 START_FPS = 10
 
+#Sprite upscaler
+SPRITESCALE = 2.5
+
 #Game & tilemap dimensions
 TILESIZE = 30  # dimensions of each square tile in terms of displacement 
 HEIGHT = 20    # number of tiles in y 

@@ -220,7 +220,8 @@ class Feorh():
         """
         for tiger in c.tigerList:
             collision_list = pygame.sprite.spritecollide(tiger, c.deerList, True)
-            for col in collision_list:
+            for deer in collision_list:
+                deer.deathByTiger = True;
                 # print "%s was eaten by %s!" % (col.name.rstrip(), tiger.name.rstrip())
                 tiger.eat(const.TIGER_EAT_ENERGY)
                 self.killTotal += 1
