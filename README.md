@@ -12,8 +12,8 @@ Let's see what happens!
 Implemented:
 - Map generator
 - Creature class to populate map with tigers and deer
-- Vision system - each creature can see in 4 directions around them
-- Brains - each creature has 65 neuron neural network
+- Vision system - each creature casts a number of rays evenly spread across their vision range. These form the inputs to the brains.
+- Brains - each creature has 65 neuron neural network. Two output neurons control four movement states: forward, turn left/right and stop.
 - Game loop - check for collisions, move creatures, pass new vision information, update screen.
 - Pseudo-DNA generation - each network has weights that are initially generated from a randomised binary sequences, which are stored as strings.
 - Genetic algorithm - fitness assessment determines which animals will breed, then by manipulation of a pair of DNA sequences offspring are generated.
