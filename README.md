@@ -4,10 +4,10 @@ A simple simulation of animals hunting written in pygame.
 Top-down 2D tile based map with animals represented by coloured squares. 
 Deer eat grass. Tigers hunt deer. Tigers hide in forests. 
 The distribution of grass, forest and neutral tiles is randomly generated (Voronoi map generation).
+Animals have neural network 'minds' with weights defined in their DNA (weight floats converted to sequences of bits).
+Breeding is performed by splicing parent DNA and flipping bits for mutations.
 
-Animals are controlled by AI. 
 AI is implemented as a static Keras neural network.
-Let's see what happens!
 
 Implemented:
 - Map generator
