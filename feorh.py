@@ -211,6 +211,10 @@ class Feorh():
                     else:
                         print " * RESUMED * "
                         self.pause = False
+                elif event.key == K_SLASH:
+                    c.spawn_creature('tiger', mapHeight=self.height, mapWidth=self.width, 
+                                     tileSize=self.tileSize, DNA=const.beastDNA, beastMode=True)
+
         return
 
     def kill_detection(self):
