@@ -211,6 +211,10 @@ class Feorh():
                     else:
                         print " * RESUMED * "
                         self.pause = False
+                elif event.key == K_SLASH:
+                    c.spawn_creature('tiger', mapHeight=self.height, mapWidth=self.width, 
+                                     tileSize=self.tileSize, DNA=const.beastDNA, beastMode=True)
+
         return
 
     def kill_detection(self):
@@ -220,7 +224,8 @@ class Feorh():
         """
         for tiger in c.tigerList:
             collision_list = pygame.sprite.spritecollide(tiger, c.deerList, True)
-            for col in collision_list:
+            for deer in collision_list:
+                deer.deathByTiger = True;
                 # print "%s was eaten by %s!" % (col.name.rstrip(), tiger.name.rstrip())
                 tiger.eat(const.TIGER_EAT_ENERGY)
                 self.killTotal += 1

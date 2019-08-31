@@ -49,14 +49,17 @@ class Creature(pygame.sprite.Sprite):
     All creatures have a Mind object (see minds.py).
     """
 
-    def __init__(self, position, ctype, DNA = ''):
+    def __init__(self, position, ctype, DNA = '', beastMode=False):
         pygame.sprite.Sprite.__init__(self)
         self.ctype = ctype
         self.name = self.get_name()
         self.angle  = uniform(0, 2*math.pi)
         #Handle creature type senstive parameters
         if ctype == 'tiger':
-            self.image, self.rect = load_png('tiger.png')
+            if not beastMode:
+                self.image, self.rect = load_png('tiger.png')
+            else:
+                self.image, self.rect = load_png('tigerGod.png')
             self.add(tigerList)
             self.baseSpeed = 6
             self.topSpeed = 10
@@ -78,11 +81,12 @@ class Creature(pygame.sprite.Sprite):
             #self.birthsecond = time()
             self.age = 0.0
             self.id = get_id()
+            self.deathByTiger = False
 
         #Scale sprites
         self.size = self.image.get_size()
         # create a 2x bigger image than self.image
-        self.image = pygame.transform.scale(self.image, (int(self.size[0]*2), int(self.size[1]*2)))
+        self.image = pygame.transform.scale(self.image, (int(self.size[0]*const.SPRITESCALE), int(self.size[1]*const.SPRITESCALE)))
         self.baseImage = self.image
 
         #Set up display information
@@ -310,9 +314,14 @@ class Creature(pygame.sprite.Sprite):
 
     def calc_fitness(self):
         #Fitness function for tigers and deer
-        return self.killCount * 10 + len(self.tiles) * 3 if self.ctype == 'tiger' else self.age + 5 * epoch
+        if (self.ctype == 'tiger'):
+            fitness = self.killCount * 10 + len(self.tiles) * 3 
+        else:
+            bonus = 100 if not self.deathByTiger else 0
+            fitness = self.age + 5 * epoch + bonus
+        return fitness
 
-def spawn_creature(ctype, mapHeight = 100, mapWidth = 150, tileSize = 6, pos=[-1,-1], DNA=''):
+def spawn_creature(ctype, mapHeight = 100, mapWidth = 150, tileSize = 6, pos=[-1,-1], DNA='', beastMode=False):
     """
     Initialises instance of a creature of type ctype.
     In absence of pos argument, spawn location is randomly generated based on height & width.
@@ -340,7 +349,7 @@ def spawn_creature(ctype, mapHeight = 100, mapWidth = 150, tileSize = 6, pos=[-1
     if pos[0] < 0 and pos[1] < 0: 
         pos = [0,0]
 
-    newCreature = Creature(pos, ctype, DNA)
+    newCreature = Creature(pos, ctype, DNA, beastMode=beastMode)
     newSprite = pygame.sprite.RenderPlain(newCreature)
 
     return newCreature, newSprite
